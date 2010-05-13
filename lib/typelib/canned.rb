@@ -1,8 +1,19 @@
 require 'bigdecimal'
+require 'datetime'
 require 'typelib'
 
 module TypeLib
     module Canned
+        def build_strptime_filter(format)
+            check = proc do |obj|
+                (DateTime.strptime(obj, format).strftime(format) == obj) rescue false 
+            end
+
+            convert = proc { |obj| DateTime.strptime(obj, format) }
+
+            return Filter.new(check, convert)
+        end
+
         module Checks
             STR_IS_INT = proc { |obj| obj.kind_of?(String) and obj =~ /^\d+$/ }
             STR_IS_DEC = proc { |obj| obj.kind_of?(String) and obj =~ /^[\d.]+$/ }
