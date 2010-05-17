@@ -1,10 +1,14 @@
 require 'bigdecimal'
-require 'datetime'
+require 'date'
 require 'typelib'
 
 module TypeLib
     module Canned
         def build_strptime_filter(format)
+            if format !~ /%z/
+                raise ArgumentError, "format must include %z due to DateTime fail"
+            end
+
             check = proc do |obj|
                 (DateTime.strptime(obj, format).strftime(format) == obj) rescue false 
             end
@@ -33,13 +37,13 @@ module TypeLib
         end
 
         module Filters
-            STR_TO_INT   = Filter.new(STR_IS_INT, TO_INTEGER)
-            STR_TO_FLOAT = Filter.new(STR_IS_DEC, TO_FLOAT)
-            STR_TO_DEC   = Filter.new(STR_IS_DEC, STR_TO_BIGDECIMAL)
+            STR_TO_INT   = Filter.new(Checks::STR_IS_INT, Conversions::TO_INTEGER)
+            STR_TO_FLOAT = Filter.new(Checks::STR_IS_DEC, Conversions::TO_FLOAT)
+            STR_TO_DEC   = Filter.new(Checks::STR_IS_DEC, Conversions::STR_TO_BIGDECIMAL)
 
-            NUM_TO_STR = Filter.new(IS_NUMERIC, TO_STRING)
-            INT_TO_BIN = Filter.new(IS_INTEGER, TO_BINARY)
-            INT_TO_HEX = Filter.new(IS_INTEGER, TO_HEX)
+            NUM_TO_STR = Filter.new(Checks::IS_NUMERIC, Conversions::TO_STRING)
+            INT_TO_BIN = Filter.new(Checks::IS_INTEGER, Conversions::TO_BINARY)
+            INT_TO_HEX = Filter.new(Checks::IS_INTEGER, Conversions::TO_HEX)
         end
     end
 end
