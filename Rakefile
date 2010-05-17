@@ -9,7 +9,7 @@ require 'typelib'
 
 include FileUtils::Verbose
 
-task :default => [ :dist ]
+task :default => [ :test, :dist ]
 
 task :fixperms do
     chmod(0755, Dir['bin/*'])  
@@ -39,9 +39,9 @@ task :clean     => [:distclean]
 
 RDoc::Task.new do |rd|
     rd.rdoc_dir = "rdoc"
-    rd.main = "README"
+    rd.main = "README.rdoc"
+    rd.rdoc_files.include("README.rdoc")
     rd.rdoc_files.include("./lib/**/*.rb")
-    rd.rdoc_files.include("README")
     rd.options = %w(-a)
 end
 
@@ -54,7 +54,7 @@ spec = Gem::Specification.new do |s|
     s.version = TypeLib::VERSION
     s.author = "Erik Hollensbe"
     s.email = "erik@hollensbe.org"
-    s.summary = "An on-demand arbitrary filtering library"
+    s.summary = "An on-demand arbitrary check and conversion library that won't destroy your data."
 
     s.files = Dir["Rakefile"] + Dir["README"] + Dir["lib/**/*"] + Dir['test/**/*']
 

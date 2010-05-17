@@ -81,9 +81,10 @@ class TestBasic < Test::Unit::TestCase
         convert2 = proc { |obj| obj.to_f }
 
         filters << TypeLib::Filter.new(check, convert, TypeLib::FilterList.new([TypeLib::Filter.new(check2, convert2)]))
+        filters << TypeLib::Filter.new(check2, convert2)
 
         assert_equal(1.0, filters.execute(1))
         assert_kind_of(Float, filters.execute(1))
-        assert_equal("1", filters.execute("1"))
+        assert_equal(1.0, filters.execute("1"))
     end
 end

@@ -1,0 +1,80 @@
+= TypeLib
+
+Typelib is a way of checking and converting data. It operates as a "filter
+chain" system which allows it to gradually normalize disparate data into a
+common type. Each chain is optionally a part of a list which allows it to
+provide several paths in a single external execution.
+
+The library is arguably very simple and therefore has simple requirements and
+needs. This is intentional.
+
+= Synopsis
+
+Here's a basic example which converts strings OR integers to integers. This
+sounds anti-climactic, but it allows us to take any kind of integer data and
+convert it safely.
+        
+    filters = TypeLib::FilterList.new
+    check   = proc { |obj| obj.kind_of?(Integer) }
+    convert = proc { |obj| obj }
+
+    check2   = proc { |obj| obj.kind_of?(String) and obj =~ /^\d+$/ }
+    convert2 = proc { |obj| Integer(obj) }
+
+    filters << TypeLib::Filter.new(check, convert)
+    filters << TypeLib::Filter.new(check2, convert2)
+
+    filters.execute(1)     # => 1
+    filters.execute("1")   # => 1
+    filters.execute("1.0") # => "1.0"
+
+TypeLib will just not do anything with data it doesn't understand, and return
+it. This is why the float in this example does nothing -- it doesn't match
+either of the checks.
+
+Filters can also take arguments that propogate into the checks and conversions
+via TypeLib::Filter#check and TypeLib::Filter#convert. Additionally, these
+arguments will be passed on from TypeLib::FilterList#execute.
+
+As mentioned prior, TypeLib can also chain. This allows us to say "if this
+check passes, do/try this, then run this next set of checks/conversions". This
+is the foundation of portable conversion, allowing us to sew together many
+checks and conversions to handle coercing any data into the right type.
+
+In the below check, any integers are converted to strings, and any string that
+looks like an integer gets coerced to float. Additionally, any string from the
+start that looks like an integer will also get converted to float. This is
+reuse of the chain without implying recursion. All parts of TypeLib can be
+reused at any point within the library's storage.
+
+    filters = TypeLib::FilterList.new
+
+    check   = proc { |obj| obj.kind_of?(Integer) }
+    convert = proc { |obj| obj.to_s }
+
+    check2   = proc { |obj| obj.kind_of?(String) and obj =~ /^\d+$/ }
+    convert2 = proc { |obj| obj.to_f }
+    
+    string_to_float = TypeLib::Filter.new(check2, convert2)
+
+    filters << TypeLib::Filter.new(
+        check, 
+        convert, 
+        TypeLib::FilterList.new([string_to_float])
+    )
+
+    filters << string_to_float
+
+    filters.execute(1)     # => 1.0
+    filters.execute("1.0") # => 1.0
+
+TypeLib also comes with a (slowly growing) number of canned checks that are
+optionally available. These are accessible in the 'typelib/canned' library and
+live in the TypeLib::Canned namespace.
+
+= Thanks
+
+== Contributed to design and review of the initial product
+
+* Dav3xor (David Case)
+* raggi (James Tucker)
