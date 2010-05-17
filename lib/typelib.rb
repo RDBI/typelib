@@ -1,6 +1,9 @@
 require 'delegate'
 
 module TypeLib
+
+    VERSION = "0.0.1"
+
     class FilterList < DelegateClass(Array)
         def initialize(ary=[])
             @filters = ary
