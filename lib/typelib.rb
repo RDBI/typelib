@@ -41,19 +41,3 @@ module TypeLib
         end
     end
 end
-
-if __FILE__ == $0
-    filters = TypeLib::FilterList.new
-
-    check   = proc { |obj, *addl| obj.kind_of?(Integer) }
-    convert = proc { |obj, *addl| obj.to_s }
-    
-    check2   = proc { |obj| obj.kind_of?(String) and obj =~ /^\d+$/ }
-    convert2 = proc { |obj| obj.to_i }
-
-    filters << TypeLib::Filter.new(check2, convert2, TypeLib::FilterList.new([TypeLib::Filter.new(check, convert)]))
-    filters << TypeLib::Filter.new(check, convert)
-
-    p filters.execute(1)
-    p filters.execute("1")
-end

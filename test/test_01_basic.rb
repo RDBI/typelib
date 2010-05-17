@@ -34,7 +34,7 @@ class TestBasic < Test::Unit::TestCase
         assert_kind_of(TypeLib::FilterList, filter.filters)
     end
 
-    def test_03_integers
+    def test_03_basic_conversions
         filters = TypeLib::FilterList.new
         check   = proc { |obj| obj.kind_of?(Integer) }
         convert = proc { |obj| obj }
@@ -59,5 +59,31 @@ class TestBasic < Test::Unit::TestCase
 
         filters << TypeLib::Filter.new(proc { true }, proc { |obj| Integer(obj) })
         assert_raises(ArgumentError) { filters.execute("1.25") }
+    end
+
+    def test_04_args
+        check   = proc { |obj, *addl| addl[0] }
+        convert = proc { |obj, *addl| addl[0] } 
+        filter  = TypeLib::Filter.new(check, convert)
+
+        assert(filter.check(true, true))
+        assert(!filter.check(true, false))
+        assert_equal("fart", filter.convert(true, "fart"))
+    end
+
+    def test_05_chains
+        filters = TypeLib::FilterList.new
+
+        check   = proc { |obj| obj.kind_of?(Integer) }
+        convert = proc { |obj| obj.to_s }
+
+        check2   = proc { |obj| obj.kind_of?(String) and obj =~ /^\d+$/ }
+        convert2 = proc { |obj| obj.to_f }
+
+        filters << TypeLib::Filter.new(check, convert, TypeLib::FilterList.new([TypeLib::Filter.new(check2, convert2)]))
+
+        assert_equal(1.0, filters.execute(1))
+        assert_kind_of(Float, filters.execute(1))
+        assert_equal("1", filters.execute("1"))
     end
 end
