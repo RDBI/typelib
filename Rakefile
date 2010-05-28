@@ -55,10 +55,12 @@ spec = Gem::Specification.new do |s|
     s.author = "Erik Hollensbe"
     s.email = "erik@hollensbe.org"
     s.summary = "An on-demand arbitrary check and conversion library that won't destroy your data."
-
-    s.files = Dir["Rakefile"] + Dir["README"] + Dir["lib/**/*"] + Dir['test/**/*']
+    s.homepage = "http://erik.hollensbe.org/docs/typelib/"
+    s.files = Dir["Rakefile"] + Dir["README.rdoc"] + Dir["lib/**/*"] + Dir['test/**/*']
 
     s.has_rdoc = true
+    s.add_development_dependency 'test-unit'
+    s.rdoc_options = %w(-a)
 end
 
 Rake::GemPackageTask.new(spec) do |s|
@@ -71,4 +73,8 @@ Rake::PackageTask.new(spec.name, spec.version) do |p|
     p.package_files.include("./Rakefile")
     p.package_files.include("./lib/**/*.rb")
     p.package_files.include("README")
+end
+
+task :to_blog => [:clobber_rdoc, :rdoc] do
+    sh "rm -fr $git/blog/content/docs/typelib && mv rdoc $git/blog/content/docs/typelib"
 end
