@@ -20,6 +20,10 @@ class TestCanned < Test::Unit::TestCase
     filters = create_filterlist(STR_TO_INT)
     assert_equal(1, filters.execute("1"))
     assert_kind_of(Integer, filters.execute("1"))
+    
+    filters = create_filterlist(STR_TO_INT)
+    assert_equal(-1, filters.execute("-1"))
+    assert_kind_of(Integer, filters.execute("-1"))
 
     filters = create_filterlist(STR_TO_FLOAT)
     assert_equal(1.0, filters.execute("1"))

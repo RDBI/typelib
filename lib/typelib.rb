@@ -12,7 +12,7 @@ require 'delegate'
 #
 module TypeLib
 
-  VERSION = "0.0.2"
+  VERSION = "0.0.3"
 
   # A FilterList is a ... list of filters. It includes all the methods that
   # Array contains, plus an additional method -- execute. See

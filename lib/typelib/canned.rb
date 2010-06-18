@@ -34,9 +34,10 @@ module TypeLib
 
     # Canned Checks.
     module Checks
-      STR_IS_INT = proc { |obj| obj.kind_of?(String) and obj =~ /^\d+$/ }
-      STR_IS_DEC = proc { |obj| obj.kind_of?(String) and obj =~ /^[\d.]+$/ }
+      STR_IS_INT = proc { |obj| obj.kind_of?(String) and obj =~ /^-?\d+$/ }
+      STR_IS_DEC = proc { |obj| obj.kind_of?(String) and obj =~ /^-?[\d.]+$/ }
 
+      IS_STRING  = proc { |obj| obj.kind_of?(String)  }
       IS_NUMERIC = proc { |obj| obj.kind_of?(Numeric) }
       IS_INTEGER = proc { |obj| obj.kind_of?(Integer) }
     end
