@@ -40,6 +40,7 @@ module TypeLib
       IS_STRING  = proc { |obj| obj.kind_of?(String)  }
       IS_NUMERIC = proc { |obj| obj.kind_of?(Numeric) }
       IS_INTEGER = proc { |obj| obj.kind_of?(Integer) }
+      IS_BOOLEAN = proc { |obj| obj.kind_of?(TrueClass) || obj.kind_of?(FalseClass) }
     end
 
     # Canned Conversions.
@@ -49,6 +50,7 @@ module TypeLib
       TO_STRING          = proc { |obj| obj.to_s }
       TO_BINARY          = proc { |obj| obj.to_s(2) }
       TO_HEX             = proc { |obj| obj.to_s(16) }
+      TO_BOOLEAN         = proc { |obj| !!obj }
 
       STR_TO_BIGDECIMAL  = proc { |obj| BigDecimal.new(obj.to_s) }
     end
