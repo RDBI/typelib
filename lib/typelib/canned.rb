@@ -22,7 +22,7 @@ module TypeLib
       end
 
       check = proc do |obj|
-        (DateTime.strptime(obj, format).strftime(format) == obj) rescue false 
+        (DateTime.strptime(obj, format).strftime(format) == obj) rescue false
       end
 
       convert = proc { |obj| DateTime.strptime(obj, format) }
