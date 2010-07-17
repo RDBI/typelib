@@ -1,80 +1,106 @@
-# $Id$
-$:.push 'lib'
-require 'rake/testtask'
-require 'rake/packagetask'
-require 'rake/gempackagetask'
-require 'rdoc/task'
-require 'fileutils'
-require 'typelib'
+require 'rubygems'
+require 'rake'
 
-include FileUtils::Verbose
+version = (File.exist?('VERSION') ? File.read('VERSION') : "").chomp
 
-task :default => [ :test, :dist ]
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "typelib"
+    gem.authors = ["Erik Hollensbe"]
+    gem.email = "erik@hollensbe.org"
+    gem.summary = "An on-demand arbitrary check and conversion library that won't destroy your data."
+    gem.homepage = "http://github.com/RDBI/typelib"
+    gem.authors = ["Erik Hollensbe"]
 
-task :fixperms do
-  chmod(0755, Dir['bin/*'])  
+    gem.add_development_dependency 'test-unit'
+    #gem.add_development_dependency 'rdoc'
+    ## for now, install hanna from here: http://github.com/erikh/hanna
+    #gem.add_development_dependency 'hanna'
+    unless RUBY_VERSION =~ /^1.9/
+      gem.add_development_dependency 'fastercsv'
+    end
+
+    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+  end
+  Jeweler::GemcutterTasks.new
+rescue LoadError
+  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
 end
 
-#
-# Tests
-#
-
-Rake::TestTask.new do |t|
-  t.libs << 'lib'
-  t.test_files = FileList['test/test*.rb']
-  t.verbose = true 
+begin
+  gem 'test-unit'
+  require 'rake/testtask'
+  Rake::TestTask.new(:test) do |test|
+    test.libs << 'lib' << 'test'
+    test.pattern = 'test/**/test_*.rb'
+    test.verbose = true
+  end
+rescue LoadError
+  task :test do
+    abort "test-unit gem is not available. In order to run test-unit, you must: sudo gem install test-unit"
+  end
 end
 
-#
-# Distribution
-#
 
-task :dist      => [:fixperms, :repackage, :gem, :rdoc]
-task :distclean => [:clobber_package, :clobber_rdoc]
-task :clean     => [:distclean]
-
-#
-# Documentation
-#
-
-RDoc::Task.new do |rd|
-  rd.rdoc_dir = "rdoc"
-  rd.main = "README.rdoc"
-  rd.rdoc_files.include("README.rdoc")
-  rd.rdoc_files.include("./lib/**/*.rb")
-  rd.options = %w(-a)
+begin
+  require 'rcov/rcovtask'
+  Rcov::RcovTask.new do |test|
+    test.libs << 'test'
+    test.pattern = 'test/**/test_*.rb'
+    test.verbose = true
+  end
+rescue LoadError
+  task :rcov do
+    abort "RCov is not available. In order to run rcov, you must: sudo gem install spicycode-rcov"
+  end
 end
 
-#
-# Packaging
-# 
+task :test => :check_dependencies
 
-spec = Gem::Specification.new do |s|
-  s.name = "typelib"
-  s.version = TypeLib::VERSION
-  s.author = "Erik Hollensbe"
-  s.email = "erik@hollensbe.org"
-  s.summary = "An on-demand arbitrary check and conversion library that won't destroy your data."
-  s.homepage = "http://erik.hollensbe.org/docs/typelib/"
-  s.files = Dir["Rakefile"] + Dir["README.rdoc"] + Dir["lib/**/*"] + Dir['test/**/*']
-
-  s.has_rdoc = true
-  s.add_development_dependency 'test-unit'
-  s.rdoc_options = %w(-a)
+begin
+  require 'roodi'
+  require 'roodi_task'
+  RoodiTask.new do |t|
+    t.verbose = false
+  end
+rescue LoadError
+  task :roodi do
+    abort "Roodi is not available. In order to run roodi, you must: sudo gem install roodi"
+  end
 end
 
-Rake::GemPackageTask.new(spec) do |s|
-end
+task :default => :test
 
-Rake::PackageTask.new(spec.name, spec.version) do |p|
-  p.need_tar_gz = true
-  p.need_zip = true
-  p.package_files.include("./bin/**/*")
-  p.package_files.include("./Rakefile")
-  p.package_files.include("./lib/**/*.rb")
-  p.package_files.include("README")
+begin
+  require 'hanna'
+  require 'rdoc/task'
+  RDoc::Task.new do |rdoc|
+    version = File.exist?('VERSION') ? File.read('VERSION') : ""
+
+    rdoc.options.push '-f', 'hanna'
+    rdoc.main = 'README.rdoc'
+    rdoc.rdoc_dir = 'rdoc'
+    rdoc.title = "RDBI #{version} Documentation"
+    rdoc.rdoc_files.include('README*')
+    rdoc.rdoc_files.include('lib/**/*.rb')
+  end
+rescue LoadError => e
+  rdoc_missing = lambda do
+    abort "What, were you born in a barn? Install rdoc and hanna at http://github.com/erikh/hanna ."
+  end
+  task :rdoc, &rdoc_missing
+  task :clobber_rdoc, &rdoc_missing
 end
 
 task :to_blog => [:clobber_rdoc, :rdoc] do
-  sh "rm -fr $git/blog/content/docs/typelib && mv rdoc $git/blog/content/docs/typelib"
+  sh "rm -fr $git/blog/content/docs/typelib && mv doc $git/blog/content/docs/typelib"
 end
+
+task :install => [:test, :build]
+
+task :docview => [:rerdoc] do
+  sh "open rdoc/index.html"
+end
+
+# vim: syntax=ruby ts=2 et sw=2 sts=2

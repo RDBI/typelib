@@ -11,9 +11,6 @@ require 'delegate'
 # Please see TypeLib::Filter and TypeLib::FilterList for more information.
 #
 module TypeLib
-
-  VERSION = "0.0.3"
-
   # A FilterList is a ... list of filters. It includes all the methods that
   # Array contains, plus an additional method -- execute. See
   # TypeLib::Filter.
