@@ -1,5 +1,3 @@
-require 'delegate'
-
 # Typelib is a way of checking and converting data. It operates as a "filter
 # chain" system which allows it to gradually normalize disparate data into a
 # common type. Each chain is optionally a part of a list which allows it to
@@ -14,12 +12,13 @@ module TypeLib
   # A FilterList is a ... list of filters. It includes all the methods that
   # Array contains, plus an additional method -- execute. See
   # TypeLib::Filter.
-  class FilterList < DelegateClass(Array)
+  class FilterList < Array
     # Create a new FilterList. An array of TypeLib::Filter objects is
     # accepted for construction.
-    def initialize(ary=[])
-      @filters = ary
-      super(@filters)
+    def initialize(ary = [])
+      # This method could maybe be removed, and allow for other options, like
+      # sized construction with a default block?
+      super(ary)
     end
 
     # Execute the checks in this list against +obj+, passing in +addl+
@@ -27,14 +26,8 @@ module TypeLib
     # conversion is run and the chain supplied to the constructor is
     # followed. If no checks pass, the original item is returned.
     def execute(obj, *addl)
-      ret = obj 
-      @filters.each do |filter|
-        if filter.check(obj, *addl)
-          ret = filter.convert(obj, *addl)
-          break
-        end
-      end
-      return ret
+      f = find { |filter| filter.check(obj, *addl) }
+      f ? f.convert(obj, *addl) : obj
     end
   end
 
@@ -71,11 +64,11 @@ module TypeLib
     # Same as TypeLib::FilterList#execute, only just for this filter.
     #
     def execute(obj, *addl)
-      ret = obj
       if check(obj, *addl)
-        ret = convert(obj, *addl)
+        convert(obj, *addl)
+      else
+        obj
       end
-      return ret
     end
   end
 end
