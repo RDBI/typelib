@@ -14,12 +14,10 @@ begin
     gem.authors = ["Erik Hollensbe"]
 
     gem.add_development_dependency 'test-unit'
-    #gem.add_development_dependency 'rdoc'
-    ## for now, install hanna from here: http://github.com/erikh/hanna
-    #gem.add_development_dependency 'hanna'
-    unless RUBY_VERSION =~ /^1.9/
-      gem.add_development_dependency 'fastercsv'
-    end
+    gem.add_development_dependency 'rdoc'
+
+    ## for now, install hanna from here: http://github.com/raggi/hanna
+    gem.add_development_dependency 'hanna'
 
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
