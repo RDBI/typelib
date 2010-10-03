@@ -61,16 +61,6 @@ class TestBasic < Test::Unit::TestCase
     assert_raises(ArgumentError) { filters.execute("1.25") }
   end
 
-  def test_04_args
-    check   = proc { |obj, *addl| addl[0] }
-    convert = proc { |obj, *addl| addl[0] } 
-    filter  = TypeLib::Filter.new(check, convert)
-
-    assert(filter.check(true, true))
-    assert(!filter.check(true, false))
-    assert_equal("fart", filter.convert(true, "fart"))
-  end
-
   def test_05_chains
     filters = TypeLib::FilterList.new
 
