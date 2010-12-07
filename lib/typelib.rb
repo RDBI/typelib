@@ -9,25 +9,23 @@
 # Please see TypeLib::Filter and TypeLib::FilterList for more information.
 #
 module TypeLib
+
+  def self.execute_filterlist(filters, obj)
+    f = filters.find { |filter| filter.check(obj) }
+    f ? f.convert(obj) : obj
+  end
+
   # A FilterList is a ... list of filters. It includes all the methods that
   # Array contains, plus an additional method -- execute. See
   # TypeLib::Filter.
   class FilterList < Array
-    # Create a new FilterList. An array of TypeLib::Filter objects is
-    # accepted for construction.
-    def initialize(ary = [])
-      # This method could maybe be removed, and allow for other options, like
-      # sized construction with a default block?
-      super(ary)
-    end
-
     # Execute the checks in this list against +obj+, passing in +addl+
     # if any additional arguments are provided. If the check passes, the
     # conversion is run and the chain supplied to the constructor is
     # followed. If no checks pass, the original item is returned.
-    def execute(obj, *addl)
-      f = find { |filter| filter.check(obj, *addl) }
-      f ? f.convert(obj, *addl) : obj
+    def execute(obj)
+      f = find { |filter| filter.check(obj) }
+      f ? f.convert(obj) : obj
     end
   end
 
@@ -49,26 +47,23 @@ module TypeLib
 
     # Check this object against the filter. If additional data is supplied,
     # it will be provided to the Filter#check_proc.
-    def check(obj, *addl)
-      check_proc.call(obj, *addl)
+    def check(obj)
+      check_proc.call(obj)
     end
 
     # Convert this object unconditionally. If additional data is supplied,
     # it will be provided to the Filter#convert_proc.
-    def convert(obj, *addl)
-      ret = convert_proc.call(obj, *addl)
-      filters.execute(ret, *addl)
+    def convert(obj)
+      ret = convert_proc.call(obj)
+      filters.execute(ret)
     end
 
     #
     # Same as TypeLib::FilterList#execute, only just for this filter.
     #
-    def execute(obj, *addl)
-      if check(obj, *addl)
-        convert(obj, *addl)
-      else
-        obj
-      end
+    def execute(obj)
+      return convert(obj) if check(obj)
+      return obj
     end
   end
 end
