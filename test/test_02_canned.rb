@@ -30,7 +30,7 @@ class TestCanned < Test::Unit::TestCase
     assert_kind_of(Float, filters.execute("1"))
 
     filters = create_filterlist(STR_TO_DEC)
-    assert_equal(BigDecimal.new("1.0"), filters.execute("1"))
+    assert_equal(BigDecimal("1.0"), filters.execute("1"))
     assert_kind_of(BigDecimal, filters.execute("1"))
   end
 

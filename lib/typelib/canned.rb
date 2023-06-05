@@ -52,7 +52,7 @@ module TypeLib
       TO_HEX             = proc { |obj| obj.to_s(16) }
       TO_BOOLEAN         = proc { |obj| !!obj }
 
-      STR_TO_BIGDECIMAL  = proc { |obj| BigDecimal.new(obj.to_s) }
+      STR_TO_BIGDECIMAL  = proc { |obj| BigDecimal(obj.to_s) }
     end
 
     # Fully canned filters.
