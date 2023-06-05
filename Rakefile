@@ -16,9 +16,6 @@ begin
     gem.add_development_dependency 'test-unit'
     gem.add_development_dependency 'rdoc'
 
-    ## for now, install hanna from here: http://github.com/raggi/hanna
-    gem.add_development_dependency 'hanna'
-
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
@@ -71,12 +68,10 @@ end
 task :default => :test
 
 begin
-  require 'hanna'
   require 'rdoc/task'
   RDoc::Task.new do |rdoc|
     version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
-    rdoc.options.push '-f', 'hanna'
     rdoc.main = 'README.rdoc'
     rdoc.rdoc_dir = 'rdoc'
     rdoc.title = "RDBI #{version} Documentation"
@@ -85,7 +80,7 @@ begin
   end
 rescue LoadError => e
   rdoc_missing = lambda do
-    abort "What, were you born in a barn? Install rdoc and hanna at http://github.com/erikh/hanna ."
+    # no-op
   end
   task :rdoc, &rdoc_missing
   task :clobber_rdoc, &rdoc_missing
